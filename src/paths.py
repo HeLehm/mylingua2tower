@@ -12,11 +12,18 @@ def get_glove_dir():
     os.makedirs(glove_dir, exist_ok=True)
     return glove_dir
 
-def get_glove_files(dir,glove_name):
+def get_bcolz_glove_files(dir,glove_name):
     glove_path = f'{dir}/{glove_name}.txt'
     glove_words_path = f'{dir}/{glove_name}_words.pkl'
     glove_idx_path = f'{dir}/{glove_name}_idx.pkl'
     glove_vectors_path = f'{dir}/{glove_name}.dat'
+    return glove_path, glove_words_path, glove_idx_path, glove_vectors_path
+
+def get_np_glove_files(dir,glove_name):
+    glove_path = f'{dir}/{glove_name}.txt'
+    glove_words_path = f'{dir}/{glove_name}_words.pkl'
+    glove_idx_path = f'{dir}/{glove_name}_idx.pkl'
+    glove_vectors_path = f'{dir}/{glove_name}.npy'
     return glove_path, glove_words_path, glove_idx_path, glove_vectors_path
 
 def get_mind_dir():

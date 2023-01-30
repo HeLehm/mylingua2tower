@@ -18,7 +18,7 @@ class MHAContentTower(nn.Module):
         self.word_embedding, self.word2idx_dict  = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim)
         self.max_seq_len = config.max_seq_len
         
-    def forward(self, input_ids):
+    def forward(self, input_ids) -> torch.FloatTensor:
         """
         Parameters
         ----------

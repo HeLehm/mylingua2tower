@@ -1,18 +1,17 @@
 # script for GloVe word embedding
 # source: https://medium.com/@martinpella/how-to-use-pre-trained-word-embeddings-in-pytorch-71ca59249f76
-import os
 import io
 import zipfile
 import requests
+import torch
+import torch.nn as nn
+import numpy as np
+
+from  typing import Callable
 
 from glob import glob
-import bcolz
-import pickle
-import numpy as np
-import torch.nn as nn
-import torch
 
-from .paths import get_glove_dir, get_glove_files
+from ..paths import get_glove_dir
 
 # TODO: index 0 = 0
 
@@ -37,84 +36,6 @@ def dowload_glove(
     z = zipfile.ZipFile(io.BytesIO(r.content))
     z.extractall(path)
     z.close()
-
-def parse_and_save_glove(
-    dir = get_glove_dir(),
-    glove_name_d='glove.6B.50d',
-    force_redo=False
-):
-    """
-    Parse GloVe word embeddings and save them in a pickle file.
-    Parameters
-    ----------
-    dir : str
-        Path to the directory where the GloVe files are stored.
-    glove_name_d : str
-        Name of the GloVe file.
-    force_redo : bool
-        If True, overwrite existing files.
-        If False, use existing files if they exist.
-    """
-
-    # declare paths
-    glove_path, glove_words_path, glove_idx_path, glove_vectors_path = \
-        get_glove_files(dir,glove_name_d)
-    #check if files already exist
-
-    if not force_redo \
-        and os.path.exists(glove_path) \
-        and os.path.exists(glove_words_path) \
-        and os.path.exists(glove_idx_path) \
-        and os.path.exists(glove_vectors_path):
-        print('GloVe files already exist. Use force_redo=True to overwrite.')
-        return
-    
-    # parse glove file
-    words = []
-    idx = 0
-    word2idx = {}
-    vectors = bcolz.carray(np.zeros(1), rootdir=f'{dir}/{glove_name_d}.dat', mode='w')
-
-    with open(f'{dir}/{glove_name_d}.txt', 'rb') as f:
-        for l in f:
-            line = l.decode().split()
-            word = line[0]
-            words.append(word)
-            word2idx[word] = idx
-            idx += 1
-            vect = np.array(line[1:]).astype(np.float)
-            vectors.append(vect)
-
-    vectors = bcolz.carray(vectors[1:].reshape((-1, 50)), rootdir=f'{dir}/{glove_name_d}.dat', mode='w')
-    vectors.flush()
-    pickle.dump(words, open(f'{dir}/{glove_name_d}_words.pkl', 'wb'))
-    pickle.dump(word2idx, open(f'{dir}/{glove_name_d}_idx.pkl', 'wb'))
-
-def load_glove(
-    dir = get_glove_dir(),
-    glove_name_d='glove.6B.50d',
-):
-    """
-    Load GloVe word embeddings.
-    Returns
-    -------
-    word2idx : dict
-        Dictionary moving from words to indices.
-    vectors : bcolz.carray
-        Array of GloVe word embeddings.
-    """
-    # get paths
-    _, glove_words_path, glove_idx_path, glove_vectors_path = \
-        get_glove_files(dir,glove_name_d)
-    
-    #load files
-    words = pickle.load(open(glove_words_path, 'rb'))
-    word2idx = pickle.load(open(glove_idx_path, 'rb'))
-    vectors = bcolz.open(glove_vectors_path)[:]
-
-    # the order should be correct as created in parse_and_save_glove
-
-    return word2idx, vectors
 
 def get_glove_embedding_matrix(
     word2idx,
@@ -165,13 +86,15 @@ def create_nn_embedding_layer_from_matrix(weights_matrix : np.ndarray, trainable
 
     return emb_layer, num_embeddings, embedding_dim
 
-def create_embedding_layer(
+def _create_embedding_layer(
     glove_name = 'glove.6B',
     dim = 50,
     path=get_glove_dir(),
     force_download=False,
     force_redo=False,
     target_vocab=None,
+    parse_and_save_glove: Callable = None,
+    load_glove: Callable = None
 ):
     """
     Create embedding layer for neural network.
@@ -217,6 +140,3 @@ def create_embedding_layer(
     emb_layer, num_embeddings, embedding_dim = create_nn_embedding_layer_from_matrix(weights_matrix)
 
     return emb_layer, word2idx
-
-    
-    

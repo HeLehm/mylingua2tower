@@ -10,5 +10,6 @@
     "hidden_dropout_prob" : 0.2,
     "pooler_type" : "weightpooler",
     "word_embedding_dim" : 50,
-    "glove_name" : "glove.6B"
+    "glove_name" : "glove.6B",
+    "learning_rate" : 0.001
 }
