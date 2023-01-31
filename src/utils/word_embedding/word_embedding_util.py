@@ -139,4 +139,7 @@ def _create_embedding_layer(
     # create embedding layer
     emb_layer, num_embeddings, embedding_dim = create_nn_embedding_layer_from_matrix(weights_matrix)
 
+    # offset word2idx by 1 (because of padding)
+    word2idx = {word: idx + 1 for word, idx in word2idx.items()}
+
     return emb_layer, word2idx

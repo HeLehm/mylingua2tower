@@ -1,8 +1,9 @@
 import torch
 import torch.nn as nn
 
-from .time_distributed import TimeDistributed
+from .utils.time_distributed import TimeDistributed
 
+from torch.nn.functional import normalize
 
 
 class UserTower(nn.Module):
@@ -57,10 +58,9 @@ class DummyUserTower(UserTower):
         torch.FloatTensor
             Tensor of shape (batch_size, hidden_size) containing the user vectors.
         """
+        # just return the mean of the content tower outputs
         mean = torch.mean(content_tower_outputs, dim=1)
-        # l2 normalize
-        mean = mean / torch.norm(mean, dim=1, keepdim=True)
-        return mean
+        return normalize(mean, p=2.0, dim=-1)
        
 
     

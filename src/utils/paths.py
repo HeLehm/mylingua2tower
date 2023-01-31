@@ -2,7 +2,7 @@ import os
 
 def get_data_dir():
     """Get the path to the data directory. Create it if it doesn't exist."""
-    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+    data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
     os.makedirs(data_dir, exist_ok=True)
     return data_dir
 

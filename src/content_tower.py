@@ -3,8 +3,10 @@ import torch
 import torch.nn as nn
 from transformers import BertConfig
 
-from .word_embedding import create_embedding_layer
-from .fastformer import FastformerEncoder
+from torch.nn.functional import normalize
+
+from .utils.word_embedding import create_embedding_layer
+from .utils.fastformer import FastformerEncoder
 
 
 class MHAContentTower(nn.Module):
@@ -15,7 +17,7 @@ class MHAContentTower(nn.Module):
     def __init__(self, config : BertConfig):
         super().__init__()
         self.fastformer_model = FastformerEncoder(config)
-        self.word_embedding, self.word2idx_dict  = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim)
+        self.word_embedding, self.word2idx_dict = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim)
         self.max_seq_len = config.max_seq_len
         
     def forward(self, input_ids) -> torch.FloatTensor:
@@ -32,8 +34,9 @@ class MHAContentTower(nn.Module):
         mask = input_ids.bool().float()
         embds = self.word_embedding(input_ids)
         text_vec = self.fastformer_model(embds,mask)
-        # euclidian normlization
-        text_vec = text_vec / torch.norm(text_vec, dim=-1, keepdim=True)
+        # l2 normlization
+        text_vec = normalize(text_vec ,p=2.0,dim=-1)
+
         return text_vec
 
     def word2idx(self, word : str) -> int:
@@ -49,8 +52,8 @@ class MHAContentTower(nn.Module):
         """
         # plus 1 because of padding
         if word not in self.word2idx_dict:
-            return self.word2idx_dict['unk'] + 1
-        return self.word2idx_dict[word] + 1
+            return self.word2idx_dict['unk']
+        return self.word2idx_dict[word]
     
     def texts_to_ids(self, tokenized_texts : List[List[str]]) -> torch.LongTensor:
         """

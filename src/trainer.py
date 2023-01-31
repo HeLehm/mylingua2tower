@@ -6,8 +6,7 @@ import torch.nn as nn
 
 from .content_tower import MHAContentTower
 from .user_tower import DummyUserTower
-from .time_distributed import TimeDistributed
-from .tokenize import tokenize
+from .utils import TimeDistributed, tokenize
 
 
 class Model(nn.Module):
@@ -76,8 +75,8 @@ class Model(nn.Module):
 
         #dot products
         # TODO check correctness
-        candidate_cosine_sim = torch.matmul(candidate_representations, user_representations.reshape(candidate_representations.shape[0], candidate_representations.shape[-1], 1) ) # shape : batch_size, candidates_len, 1
-        candidate_cosine_sim = candidate_cosine_sim.squeeze(-1)
+        candidate_cosine_sim = torch.matmul(candidate_representations, user_representations.reshape(candidate_representations.shape[0], candidate_representations.shape[-1], 1) ).squeeze(-1) # shape : batch_size, candidates_len
+        candidate_cosine_sim = candidate_cosine_sim
 
         # nomalize to 0-1
         preds = torch.sigmoid(candidate_cosine_sim)
@@ -88,7 +87,6 @@ class Model(nn.Module):
 class Trainer():
     def __init__(self, model):
         self.model : Model = model
-        self.config = model.config
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.config.learning_rate)
         self.criterion = nn.BCEWithLogitsLoss() # multi-label 
         
