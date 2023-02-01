@@ -54,6 +54,9 @@ class MINDIterator(_MINDIterator):
 
     def __iter__(self):
         return self.load_data_from_file(self.news_file, self.behaviors_file)
+
+    def __len__(self):
+        return len(self.labels) + 1 // self.batch_size
         
     def init_news(self, news_file):
         """init news information given news file, such as news_title_index and nid2index.
