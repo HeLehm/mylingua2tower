@@ -11,5 +11,10 @@
     "pooler_type" : "weightpooler",
     "word_embedding_dim" : 50,
     "glove_name" : "glove.6B",
-    "learning_rate" : 0.001
+    "learning_rate" : 0.001,
+    "npratio" : 4,
+    "batch_size" : 32,
+    "max_title_length" : 128,
+    "history_size" : 10,
+    "MIND_type" : "demo"
 }

@@ -24,14 +24,20 @@ def get_mind_iter(
     """
     tnp, tbp, dnp, dbp, udf = setup_mind(MIND_type, dir, **kwargs)
 
-    iterator = MINDIterator(
-        batch_size=batch_size,
-        max_title_length=max_title_length,
-        history_size=history_size,
-        wordDict=word_dict,
-        userDict_file=udf,
-        npratio=npratio,
-        **kwargs,
-    )
+    mind_kwargs = {
+        'batch_size': batch_size,
+        'max_title_length': max_title_length,
+        'history_size': history_size,
+        'wordDict': word_dict,
+        'userDict_file': udf,
+        'npratio': npratio,
+        **kwargs
+    }
 
-    return iterator, tnp, tbp, dnp, dbp
+    train_iterator = MINDIterator(**mind_kwargs)
+    t = train_iterator.load_data_from_file(tnp, tbp)
+
+    dev_iterator = MINDIterator(**mind_kwargs)
+    d = dev_iterator.load_data_from_file(dnp, dbp)
+
+    return t, d

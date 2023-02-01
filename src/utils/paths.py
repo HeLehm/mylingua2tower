@@ -31,3 +31,10 @@ def get_mind_dir():
     mind_dir = os.path.join(get_data_dir(), 'MIND')
     os.makedirs(mind_dir, exist_ok=True)
     return mind_dir
+
+def get_model_dir():
+    """Get the path to the model directory. Create it if it doesn't exist."""
+    data_dir = get_data_dir()
+    model_dir = os.path.join(data_dir, 'models')
+    os.makedirs(model_dir, exist_ok=True)
+    return model_dir

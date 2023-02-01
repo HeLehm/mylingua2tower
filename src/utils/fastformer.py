@@ -139,7 +139,6 @@ class FastformerEncoder(nn.Module):
         super(FastformerEncoder, self).__init__()
         self.config = config
         self.encoders = nn.ModuleList([FastformerLayer(config) for _ in range(config.num_hidden_layers)])
-        print(config.max_position_embeddings)
         self.position_embeddings = nn.Embedding(config.max_position_embeddings, config.hidden_size)
         self.LayerNorm = nn.LayerNorm(config.hidden_size, eps=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
