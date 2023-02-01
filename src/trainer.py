@@ -106,7 +106,7 @@ class Trainer(nn.Module):
 
             # update tqdm 
             current_mean_loss = losses_sum / (i + 1)
-            tqdm_bar.set_description(f"Epoch {epoch} - mean_loss: {current_mean_loss:2.3f} - batch_loss: {loss:2.3f}")
+            tqdm_bar.set_description(f"Epoch {epoch} - mean_loss: {current_mean_loss:2.3f} - batch_loss: {loss:2.3f} - batch_auc: {auc:2.3f}")
         return losses_sum / (i + 1), auc_sum / (i + 1)
 
     def _fit_batch(self, batch):

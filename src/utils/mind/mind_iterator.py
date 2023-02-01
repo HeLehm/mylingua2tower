@@ -24,6 +24,8 @@ class MINDIterator(_MINDIterator):
     """
     def __init__(
         self,
+        news_file : str,
+        behaviors_file : str,
         batch_size : int,
         max_title_length : int,
         history_size : int,
@@ -34,6 +36,8 @@ class MINDIterator(_MINDIterator):
         ID_spliter="%",
         **kwargs,
     ):
+        self.news_file = news_file
+        self.behaviors_file = behaviors_file
         self.col_spliter = col_spliter
         self.ID_spliter = ID_spliter
         self.batch_size = batch_size
@@ -48,6 +52,9 @@ class MINDIterator(_MINDIterator):
 
         self.uid2index = self.load_dict(userDict_file)
 
+    def __iter__(self):
+        return self.load_data_from_file(self.news_file, self.behaviors_file)
+        
     def init_news(self, news_file):
         """init news information given news file, such as news_title_index and nid2index.
         Args:

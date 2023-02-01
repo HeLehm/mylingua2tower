@@ -34,10 +34,7 @@ def get_mind_iter(
         **kwargs
     }
 
-    train_iterator = MINDIterator(**mind_kwargs)
-    t = train_iterator.load_data_from_file(tnp, tbp)
+    train_iterator = MINDIterator(tnp, tbp, **mind_kwargs)
+    dev_iterator = MINDIterator(dnp, dbp, **mind_kwargs)
 
-    dev_iterator = MINDIterator(**mind_kwargs)
-    d = dev_iterator.load_data_from_file(dnp, dbp)
-
-    return t, d
+    return train_iterator, dev_iterator
