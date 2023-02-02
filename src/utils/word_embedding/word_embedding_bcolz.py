@@ -1,4 +1,4 @@
-from .word_embedding_util import _create_embedding_layer
+from .word_embedding_util import _create_torch_embedding_layer
 from ..paths import get_bcolz_glove_files, get_glove_dir
 
 import os
@@ -85,5 +85,5 @@ def load_glove(
 
     return word2idx, vectors # aka idx2emb
 
-def create_embedding_layer(**kwargs):
-    return _create_embedding_layer(**kwargs, load_glove=load_glove, parse_and_save_glove=parse_and_save_glove)
+def create_torch_embedding_layer(**kwargs):
+    return _create_torch_embedding_layer(**kwargs, load_glove=load_glove, parse_and_save_glove=parse_and_save_glove)

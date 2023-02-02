@@ -1,7 +1,7 @@
 from typing import Literal
 
 from .utils import setup_mind
-from ..word_embedding import create_embedding_layer
+from ..word_embedding import create_torch_embedding_layer
 from .mind_iterator import MINDIterator
 
 def get_mind_iter(
@@ -24,7 +24,7 @@ def get_mind_iter(
         dev_behaviors_path: path to dev behaviors file
     """
     if word_dict is None:
-        _, word_dict = create_embedding_layer(**kwargs)
+        _, word_dict = create_torch_embedding_layer(**kwargs)
 
 
     tnp, tbp, dnp, dbp, udf = setup_mind(MIND_type, mind_data_dir, **kwargs)

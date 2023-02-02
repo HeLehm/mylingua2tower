@@ -70,23 +70,24 @@ def get_glove_embedding_matrix(
             weights_matrix[i] = np.random.normal(scale=0.6, size=(emb_dim, ))
     return weights_matrix
 
-def create_nn_embedding_layer_from_matrix(weights_matrix : np.ndarray, trainable=False):
+def create_nn_embedding_layer_from_matrix(weights_matrix : np.ndarray, trainable=False, padding=True):
     """
     Create embedding layer for neural network.
     """
-    #extend embedding matrix by one row for padding
-    weights_matrix = np.vstack((np.zeros(weights_matrix.shape[1]), weights_matrix))
-    weights_matrix = torch.from_numpy(weights_matrix).float()
+    if padding:
+        #extend embedding matrix by one row for padding
+        weights_matrix = np.vstack((np.zeros(weights_matrix.shape[1]), weights_matrix))
+        weights_matrix = torch.from_numpy(weights_matrix).float()
 
     num_embeddings, embedding_dim = weights_matrix.size()
-    emb_layer = nn.Embedding(num_embeddings, embedding_dim, padding_idx=0)
+    emb_layer = nn.Embedding(num_embeddings, embedding_dim, padding_idx=0 if padding else None)
     emb_layer.load_state_dict({'weight': weights_matrix})
     if not trainable:
         emb_layer.weight.requires_grad = False
 
     return emb_layer, num_embeddings, embedding_dim
 
-def _create_embedding_layer(
+def _create_torch_embedding_layer(
     glove_name = 'glove.6B',
     dim = 50,
     glove_path=get_glove_dir(),
@@ -95,6 +96,8 @@ def _create_embedding_layer(
     target_vocab=None,
     parse_and_save_glove: Callable = None,
     load_glove: Callable = None,
+    padding = True,
+    trainable = False,
     **kwargs
 ):
     """
@@ -138,7 +141,7 @@ def _create_embedding_layer(
     weights_matrix = get_glove_embedding_matrix(word2idx, idx2emb, target_vocab, dim)
 
     # create embedding layer
-    emb_layer, num_embeddings, embedding_dim = create_nn_embedding_layer_from_matrix(weights_matrix)
+    emb_layer, num_embeddings, embedding_dim = create_nn_embedding_layer_from_matrix(weights_matrix, trainable=trainable, padding=padding)
 
     # offset word2idx by 1 (because of padding)
     word2idx = {word: idx + 1 for word, idx in word2idx.items()}

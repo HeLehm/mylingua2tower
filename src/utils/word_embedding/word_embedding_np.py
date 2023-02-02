@@ -1,7 +1,7 @@
 import numpy as np
 import pickle
 
-from .word_embedding_util import _create_embedding_layer
+from .word_embedding_util import _create_torch_embedding_layer
 
 from ..paths import get_glove_dir , get_np_glove_files
 
@@ -73,5 +73,5 @@ def load_glove(
 
     return word2idx, vectors
 
-def create_embedding_layer(**kwargs):
-    return _create_embedding_layer(load_glove=load_glove, parse_and_save_glove=parse_and_save_glove, **kwargs)
+def create_torch_embedding_layer(**kwargs):
+    return _create_torch_embedding_layer(load_glove=load_glove, parse_and_save_glove=parse_and_save_glove, **kwargs)

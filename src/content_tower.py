@@ -5,7 +5,7 @@ from transformers import BertConfig
 
 from torch.nn.functional import normalize
 
-from .utils.word_embedding import create_embedding_layer
+from .utils.word_embedding import create_torch_embedding_layer
 from .utils.fastformer import FastformerEncoder
 
 
@@ -23,7 +23,7 @@ class MHAContentTower(nn.Module):
 
     def init_from_config(self, config : BertConfig, **kwargs):
         self.fastformer_model = FastformerEncoder(config)
-        self.word_embedding, self.word2idx_dict = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim, **kwargs)
+        self.word_embedding, self.word2idx_dict = create_torch_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim, **kwargs)
         self.max_seq_len = config.max_seq_len
         
     def forward(self, input_ids) -> torch.FloatTensor:
