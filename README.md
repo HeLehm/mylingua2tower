@@ -8,6 +8,8 @@
 - [ ] GloVe lower dimension
 - [ ] inference model
 - [ ] save and load with optimizer etc
+- [ ] save hparams
+- [ ] use Fastformer
 
 ## Note
 There used to be a pytorch version but it was never finished...

@@ -4,6 +4,7 @@ from recommenders.models.newsrec.newsrec_utils import get_mind_data_set as _get_
 from recommenders.models.newsrec.newsrec_utils import prepare_hparams
 
 from .paths import get_mind_dir
+from .glove import dowload_glove, parse_and_save_glove_array
 
 def get_mind_train(MIND_type, mind_data_dir=None, force_download=False):
     mind_url, mind_train_dataset, _, _ = _get_mind_data_set(MIND_type)
@@ -72,6 +73,8 @@ def get_hprarams(
     MIND_type,
     mind_data_dir=None,
     force_download=False,
+    glove_name='glove.6B',
+    word_emb_dim=300,
     **kwargs,
 ):
     """
@@ -81,14 +84,22 @@ def get_hprarams(
     hparams: dict
         the hyper-parameters for MIND dataset
     """
-    wordEmb_file, userDict_file, wordDict_file, yaml_file = get_mind_utils(
+    assert word_emb_dim in [50, 100, 200, 300], "word_emb_dim should be in [50, 100, 200, 300]"
+    _, userDict_file, _, yaml_file = get_mind_utils(
         MIND_type, mind_data_dir, force_download
     )
+
+    # GloVe setup
+    glove_name_d = f'{glove_name}.{word_emb_dim}d'
+    dowload_glove(glove_name, **kwargs)
+    wordDict_file, wordEmb_file = parse_and_save_glove_array(glove_name_d=glove_name_d, padding=True, **kwargs)
+    
     hparams = prepare_hparams(
         yaml_file,
         wordEmb_file=wordEmb_file,
         wordDict_file=wordDict_file, 
         userDict_file=userDict_file,
+        glove_name=glove_name,
         **kwargs
     )
     return hparams
