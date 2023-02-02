@@ -5,8 +5,6 @@ from tqdm import tqdm
 
 from .utils import get_mind_iter
 
-import torchmetrics
-
 from datetime import datetime
 
 import os
@@ -27,7 +25,6 @@ class Trainer(nn.Module):
             lr=self.config.learning_rate
         )
         self.criterion = nn.CrossEntropyLoss()
-        self.auc = torchmetrics.AUROC(task="multiclass", num_classes=self.config.npratio + 1)
 
         self.train_iter = None
         self.val_iter = None
@@ -88,26 +85,24 @@ class Trainer(nn.Module):
 
     def fit(self, epochs=10):
         for epoch in range(0, epochs):
-            epoch_loss, epoch_auc = self._fit_epoch(self.train_iter, epoch)
-            eval_loss, eval_auc = self.eval()
-            print("eval result loss:", eval_loss, "eval auc:", eval_auc)
+            epoch_loss = self._fit_epoch(self.train_iter, epoch)
+            eval_loss = self.eval()
+            print("eval result loss:", eval_loss)
 
     def _fit_epoch(self, data_iter, epoch):
         self.time_dist_content.train()
         self.user_encoder.train()
         losses_sum = 0
-        auc_sum = 0
 
         tqdm_bar = tqdm(enumerate(data_iter), desc=f"Epoch {epoch}")
         for i, batch in tqdm_bar:
-            loss, auc = self._fit_batch(batch)
+            loss = self._fit_batch(batch)
             losses_sum += loss
-            auc_sum += auc
 
             # update tqdm 
             current_mean_loss = losses_sum / (i + 1)
-            tqdm_bar.set_description(f"Epoch {epoch} - mean_loss: {current_mean_loss:2.3f} - batch_loss: {loss:2.3f} - batch_auc: {auc:2.3f}")
-        return losses_sum / (i + 1), auc_sum / (i + 1)
+            tqdm_bar.set_description(f"Epoch {epoch} - mean_loss: {current_mean_loss:2.3f} - batch_loss: {loss:2.3f}")
+        return losses_sum / (i + 1)
 
     def _fit_batch(self, batch):
         hist_input, candidate_input, labels = self.parse_batch(batch)
@@ -116,30 +111,26 @@ class Trainer(nn.Module):
         loss = self.criterion(preds, labels)
         loss.backward()
         self.optimizer.step()
-        auc = self.auc(preds, labels)
-        return loss.item(), auc.item()
+        return loss.item()
 
     def eval(self):
         self.time_dist_content.eval()
         self.user_encoder.eval()
         losses_sum = 0
-        auc_sum = 0
 
         tqdm_bar = tqdm(enumerate(self.val_iter), desc=f"Evaluation")
         for i, batch in tqdm_bar:
-            loss, auc = self._eval_batch(batch)
+            loss = self._eval_batch(batch)
             losses_sum += loss
-            auc_sum += auc
 
-        return losses_sum / (i + 1), auc_sum / (i + 1)
+        return losses_sum / (i + 1)
 
     def _eval_batch(self, batch):
         hist_input, candidate_input, labels = self.parse_batch(batch)
         with torch.no_grad():
             preds = self.forward(hist_input, candidate_input)
             loss = self.criterion(preds, labels)
-            auc = self.auc(preds, labels)
-        return loss.item() , auc.item()
+        return loss.item()
 
     def parse_batch(self, batch):
         """
