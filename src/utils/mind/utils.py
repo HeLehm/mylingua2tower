@@ -9,7 +9,7 @@ from ..paths import get_mind_dir
 
 def setup_mind(
     MIND_type : Literal['demo', 'small', 'large'] = 'demo',
-    dir=None,
+    mind_data_dir=None,
     force_download=False,
     **kwargs
 ):
@@ -20,29 +20,29 @@ def setup_mind(
         root_path (str): root path of the dataset
     """
     mind_url, mind_train_dataset, mind_dev_dataset, mind_utils = get_mind_data_set(MIND_type)
-    if dir is None:
-        dir = os.path.join(get_mind_dir(), MIND_type)
-    os.makedirs(dir, exist_ok=True)
+    if mind_data_dir is None:
+        mind_data_dir = os.path.join(get_mind_dir(), MIND_type)
+    os.makedirs(mind_data_dir, exist_ok=True)
     
-    train_news_path = os.path.join(dir, 'train' , r'news.tsv')
-    train_behaviors_path = os.path.join(dir, 'train' , r'behaviors.tsv')
-    dev_news_path = os.path.join(dir, 'valid' , r'news.tsv')
-    dev_behaviors_path = os.path.join(dir, 'valid' , r'behaviors.tsv')
+    train_news_path = os.path.join(mind_data_dir, 'train' , r'news.tsv')
+    train_behaviors_path = os.path.join(mind_data_dir, 'train' , r'behaviors.tsv')
+    dev_news_path = os.path.join(mind_data_dir, 'valid' , r'news.tsv')
+    dev_behaviors_path = os.path.join(mind_data_dir, 'valid' , r'behaviors.tsv')
 
-    wordEmb_file = os.path.join(dir, "utils", "embedding.npy")
-    userDict_file = os.path.join(dir, "utils", "uid2index.pkl")
-    wordDict_file = os.path.join(dir, "utils", "word_dict.pkl")
-    yaml_file = os.path.join(dir, "utils", r'nrms.yaml')
+    wordEmb_file = os.path.join(mind_data_dir, "utils", "embedding.npy")
+    userDict_file = os.path.join(mind_data_dir, "utils", "uid2index.pkl")
+    wordDict_file = os.path.join(mind_data_dir, "utils", "word_dict.pkl")
+    yaml_file = os.path.join(mind_data_dir, "utils", r'nrms.yaml')
 
     if force_download or not os.path.exists(train_news_path):
-        download_deeprec_resources(mind_url, os.path.join(dir, 'train'), mind_train_dataset)
+        download_deeprec_resources(mind_url, os.path.join(mind_data_dir, 'train'), mind_train_dataset)
     
     if force_download or not os.path.exists(dev_news_path):
-        download_deeprec_resources(mind_url, os.path.join(dir, 'valid'), mind_dev_dataset)
+        download_deeprec_resources(mind_url, os.path.join(mind_data_dir, 'valid'), mind_dev_dataset)
 
     if not os.path.exists(yaml_file):
         download_deeprec_resources(r'https://recodatasets.z20.web.core.windows.net/newsrec/', \
-                               os.path.join(dir, 'utils'), mind_utils)
+                               os.path.join(mind_data_dir, 'utils'), mind_utils)
 
     
     """

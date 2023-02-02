@@ -21,9 +21,9 @@ class MHAContentTower(nn.Module):
         self.word2idx_dict = None
         self.max_seq_len = None
 
-    def init_from_config(self, config : BertConfig):
+    def init_from_config(self, config : BertConfig, **kwargs):
         self.fastformer_model = FastformerEncoder(config)
-        self.word_embedding, self.word2idx_dict = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim)
+        self.word_embedding, self.word2idx_dict = create_embedding_layer(glove_name=config.glove_name, dim=config.word_embedding_dim, **kwargs)
         self.max_seq_len = config.max_seq_len
         
     def forward(self, input_ids) -> torch.FloatTensor:

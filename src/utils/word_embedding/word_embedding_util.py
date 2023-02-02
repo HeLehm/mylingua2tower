@@ -89,12 +89,13 @@ def create_nn_embedding_layer_from_matrix(weights_matrix : np.ndarray, trainable
 def _create_embedding_layer(
     glove_name = 'glove.6B',
     dim = 50,
-    path=get_glove_dir(),
+    glove_path=get_glove_dir(),
     force_download=False,
     force_redo=False,
     target_vocab=None,
     parse_and_save_glove: Callable = None,
-    load_glove: Callable = None
+    load_glove: Callable = None,
+    **kwargs
 ):
     """
     Create embedding layer for neural network.
@@ -122,14 +123,14 @@ def _create_embedding_layer(
         NOTE: the index in then embedding matrix is index + 1 (padding = 0)
     """
     # download glove file
-    dowload_glove(glove_name, path, force_download)
+    dowload_glove(glove_name, glove_path, force_download)
 
     # parse glove file
     glove_name_d = f'{glove_name}.{dim}d'
-    parse_and_save_glove(path, glove_name_d, force_redo)
+    parse_and_save_glove(glove_path, glove_name_d, force_redo)
 
     # load glove dictionary
-    word2idx, idx2emb = load_glove(path, glove_name_d)
+    word2idx, idx2emb = load_glove(glove_path, glove_name_d)
 
     # create embedding matrix
     if target_vocab is None:

@@ -85,5 +85,5 @@ def load_glove(
 
     return word2idx, vectors # aka idx2emb
 
-def create_embedding_layer(*args, **kwargs):
+def create_embedding_layer(**kwargs):
     return _create_embedding_layer(**kwargs, load_glove=load_glove, parse_and_save_glove=parse_and_save_glove)
