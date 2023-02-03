@@ -89,6 +89,8 @@ def get_hprarams(
         MIND_type, mind_data_dir, force_download
     )
 
+    #NOTE:if 300 we might not even have to load this
+
     # GloVe setup
     glove_name_d = f'{glove_name}.{word_emb_dim}d'
     dowload_glove(glove_name, **kwargs)
