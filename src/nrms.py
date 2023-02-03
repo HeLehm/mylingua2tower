@@ -121,6 +121,21 @@ class NRMSModel(_NRMSModel):
         model = keras.Model(sequences_input_title, pred_title, name="news_encoder")
         return model
 
+    def _get_opt(self):
+        """
+        Override lr -> learning_rate
+        Get the optimizer according to configuration. Usually we will use Adam.
+        Returns:
+            object: An optimizer.
+        """
+        lr = self.hparams.learning_rate
+        optimizer = self.hparams.optimizer
+
+        if optimizer == "adam":
+            train_opt = keras.optimizers.Adam(learning_rate=lr)
+
+        return train_opt
+
 
 class NewsEncoder():
     
