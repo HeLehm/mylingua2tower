@@ -58,6 +58,7 @@ class NRMSModel(_NRMSModel):
 
 
     def save(self, model_dir):
+        os.makedirs(model_dir, exist_ok=True)
         # get paths
         checkpoint_path,\
             hparams_path,\
