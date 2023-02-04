@@ -9,6 +9,11 @@ import json
 import pickle
 import numpy as np
 
+from tqdm import tqdm
+import time
+
+import wandb
+
 from typing import List
 
 class NRMSModel(_NRMSModel):
@@ -136,6 +141,123 @@ class NRMSModel(_NRMSModel):
             train_opt = keras.optimizers.Adam(learning_rate=lr)
 
         return train_opt
+
+    def fit(
+        self,
+        train_news_file,
+        train_behaviors_file,
+        valid_news_file,
+        valid_behaviors_file,
+        test_news_file=None,
+        test_behaviors_file=None,
+        wandb_log=False,
+    ):
+        """Fit the model with train_file. Evaluate the model on valid_file per epoch to observe the training status.
+        If test_news_file is not None, evaluate it too.
+
+        Args:
+            train_file (str): training data set.
+            valid_file (str): validation set.
+            test_news_file (str): test set.
+
+        Returns:
+            object: An instance of self.
+        """
+
+        for epoch in range(1, self.hparams.epochs + 1):
+            step = 0
+            self.hparams.current_epoch = epoch
+            epoch_loss = 0
+            train_start = time.time()
+            
+            tqdm_util = tqdm(
+                self.train_iterator.load_data_from_file(
+                    train_news_file, train_behaviors_file
+                )
+            )
+
+            for batch_data_input in tqdm_util:
+
+                step_result = self.train(batch_data_input)
+                step_data_loss = step_result
+
+                epoch_loss += step_data_loss
+                step += 1
+                if step % self.hparams.show_step == 0:
+                    tqdm_util.set_description(
+                        "step {0:d} , total_loss: {1:.4f}, data_loss: {2:.4f}".format(
+                            step, epoch_loss / step, step_data_loss
+                        )
+                    )
+
+            train_end = time.time()
+            train_time = train_end - train_start
+
+            eval_start = time.time()
+
+            train_info = ",".join(
+                [
+                    str(item[0]) + ":" + str(item[1])
+                    for item in [("logloss loss", epoch_loss / step)]
+                ]
+            )
+
+            eval_res = self.run_eval(valid_news_file, valid_behaviors_file)
+            eval_info = ", ".join(
+                [
+                    str(item[0]) + ":" + str(item[1])
+                    for item in sorted(eval_res.items(), key=lambda x: x[0])
+                ]
+            )
+            if test_news_file is not None:
+                test_res = self.run_eval(test_news_file, test_behaviors_file)
+                test_info = ", ".join(
+                    [
+                        str(item[0]) + ":" + str(item[1])
+                        for item in sorted(test_res.items(), key=lambda x: x[0])
+                    ]
+                )
+            eval_end = time.time()
+            eval_time = eval_end - eval_start
+
+            if test_news_file is not None:
+                print(
+                    "at epoch {0:d}".format(epoch)
+                    + "\ntrain info: "
+                    + train_info
+                    + "\neval info: "
+                    + eval_info
+                    + "\ntest info: "
+                    + test_info
+                )
+            else:
+                print(
+                    "at epoch {0:d}".format(epoch)
+                    + "\ntrain info: "
+                    + train_info
+                    + "\neval info: "
+                    + eval_info
+                )
+            print(
+                "at epoch {0:d} , train time: {1:.1f} eval time: {2:.1f}".format(
+                    epoch, train_time, eval_time
+                )
+            )
+
+            if wandb_log:
+                log_dict = {
+                    "train_loss": epoch_loss / step,
+                }
+                log_dict.update({
+                    "eval_" + k: v for k, v in eval_res.items()
+                })
+                if test_news_file is not None:
+                    log_dict.update({
+                        "test_" + k: v for k, v in test_res.items()
+                    })
+                wandb.log(log_dict)
+
+        return self
 
 
 class NewsEncoder():
