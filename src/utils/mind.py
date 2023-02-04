@@ -73,7 +73,8 @@ def get_mind_utils(MIND_type, mind_data_dir=None, force_download=False):
 
 def _get_mind_dir(MIND_type, mind_data_dir=None):
     if mind_data_dir is None:
-        mind_data_dir = os.path.join(get_mind_dir(), MIND_type)
+        mind_data_dir = get_mind_dir()
+    mind_data_dir = os.path.join(mind_data_dir, MIND_type)
     os.makedirs(mind_data_dir, exist_ok=True)
     return mind_data_dir
 
