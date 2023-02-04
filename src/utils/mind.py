@@ -3,10 +3,16 @@ from recommenders.models.deeprec.deeprec_utils import download_deeprec_resources
 from recommenders.models.newsrec.newsrec_utils import get_mind_data_set as _get_mind_data_set
 from recommenders.models.newsrec.newsrec_utils import prepare_hparams
 
+from types import SimpleNamespace
+
 from .paths import get_mind_dir
 from .glove import dowload_glove, parse_and_save_glove_array
 
-def get_mind_train(MIND_type, mind_data_dir=None, force_download=False):
+def get_mind_train(hparams):
+    MIND_type = hparams.MIND_type
+    mind_data_dir = hparams.mind_data_dir
+    force_download = hparams.force_download
+    #MIND_type, mind_data_dir=None, force_download=False
     mind_url, mind_train_dataset, _, _ = _get_mind_data_set(MIND_type)
     mind_data_dir = _get_mind_dir(MIND_type, mind_data_dir)
     train_dir = os.path.join(mind_data_dir, 'train')
@@ -19,7 +25,10 @@ def get_mind_train(MIND_type, mind_data_dir=None, force_download=False):
 
     return train_news_path, train_behaviors_path
 
-def get_mind_val(MIND_type, mind_data_dir=None, force_download=False):
+def get_mind_val(hparams):
+    MIND_type = hparams.MIND_type
+    mind_data_dir = hparams.mind_data_dir
+    force_download = hparams.force_download
     mind_url, _, mind_dev_dataset, _ = _get_mind_data_set(MIND_type)
     mind_data_dir = _get_mind_dir(MIND_type, mind_data_dir)
     dev_dir = os.path.join(mind_data_dir, 'valid')
@@ -85,6 +94,8 @@ def get_hprarams(
         the hyper-parameters for MIND dataset
     """
     assert word_emb_dim in [50, 100, 200, 300], "word_emb_dim should be in [50, 100, 200, 300]"
+
+    mind_data_dir = _get_mind_dir(MIND_type, mind_data_dir)
     _, userDict_file, _, yaml_file = get_mind_utils(
         MIND_type, mind_data_dir, force_download
     )
@@ -99,12 +110,43 @@ def get_hprarams(
     hparams = prepare_hparams(
         yaml_file,
         wordEmb_file=wordEmb_file,
-        wordDict_file=wordDict_file, 
+        wordDict_file=wordDict_file,
         userDict_file=userDict_file,
         glove_name=glove_name,
+        force_download=force_download,
+        mind_data_dir=mind_data_dir,
+        word_emb_dim=word_emb_dim,
+        MIND_type=MIND_type,
         **kwargs
     )
+    hparams = _clean_hparams(hparams)
     return hparams
+
+def _clean_hparams(hparams):
+    """
+    will remove the following keys from hparams (SimpleNameSpace)
+    filter_num, window_size, vert_emb_dim, subvert_emb_dim
+    """
+    keys_to_remove = [
+        # naml
+        "filter_num",
+        "window_size",
+        "vert_emb_dim",
+        "subvert_emb_dim",
+        # lstur
+        "gru_unit",
+        "type",
+        # npa
+        "user_emb_dim",
+    ]
+    for key in keys_to_remove:
+        if hasattr(hparams, key):
+            delattr(hparams, key)
+            hparams._values.pop(key, None)
+    return hparams
+
+
+
 
 
 
