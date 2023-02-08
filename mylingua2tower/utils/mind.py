@@ -3,10 +3,8 @@ from recommenders.models.deeprec.deeprec_utils import download_deeprec_resources
 from recommenders.models.newsrec.newsrec_utils import get_mind_data_set as _get_mind_data_set
 from recommenders.models.newsrec.newsrec_utils import prepare_hparams
 
-from types import SimpleNamespace
-
 from .paths import get_mind_dir
-from .glove import dowload_glove, parse_and_save_glove_array
+from .glove import download_glove, parse_and_save_glove_array
 
 def get_mind_train(hparams):
     MIND_type = hparams.MIND_type
@@ -105,7 +103,7 @@ def get_hprarams(
 
     # GloVe setup
     glove_name_d = f'{glove_name}.{word_emb_dim}d'
-    dowload_glove(glove_name, **kwargs)
+    download_glove(glove_name, **kwargs)
     wordDict_file, wordEmb_file = parse_and_save_glove_array(glove_name_d=glove_name_d, padding=True, **kwargs)
     
     hparams = prepare_hparams(
@@ -145,9 +143,3 @@ def _clean_hparams(hparams):
             delattr(hparams, key)
             hparams._values.pop(key, None)
     return hparams
-
-
-
-
-
-

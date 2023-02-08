@@ -9,7 +9,7 @@ from glob import glob
 
 from .paths import get_glove_dir, get_glove_files
 
-def dowload_glove(
+def download_glove(
     glove_name = 'glove.6B',
     glove_dir=None,
     force_download=False,
@@ -152,7 +152,7 @@ def get_glove(
         Dimensionality of the GloVe word embeddings. default: 50
     """
     # download glove
-    dowload_glove(glove_name, glove_dir, **kwargs)
+    download_glove(glove_name, glove_dir, **kwargs)
 
     # parse glove
     glove_name_d = f'{glove_name}.{glove_dim}d'

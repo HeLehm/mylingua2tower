@@ -9,9 +9,9 @@ import unittest
 from tempfile import TemporaryDirectory
 import numpy as np
 
-from src.utils.mind import get_hprarams
-from src.iterator import MINDIterator
-from src.nrms import NRMSModel
+from mylingua2tower.utils.mind import get_hprarams
+from mylingua2tower.iterator import MINDIterator
+from mylingua2tower.nrms import NRMSModel
 
 
 MIND_type = 'demo'
@@ -61,18 +61,5 @@ class TestLoad(unittest.TestCase):
                     self.assertAlmostEqual(preds[i], old_preds[i], places=3)
 
 
-
-
-
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-
-
-
-
-
