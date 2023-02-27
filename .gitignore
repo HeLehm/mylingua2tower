@@ -194,3 +194,7 @@ cython_debug/
 
 # custom
 data/
+
+build/
+dist/
+*.egg-info
