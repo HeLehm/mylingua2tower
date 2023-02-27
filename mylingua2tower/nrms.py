@@ -12,7 +12,11 @@ import numpy as np
 from tqdm import tqdm
 import time
 
-import wandb
+wand_available = True
+try:
+    import wandb
+except ImportError:
+    wand_available = False
 
 from typing import List
 
@@ -163,6 +167,10 @@ class NRMSModel(_NRMSModel):
         Returns:
             object: An instance of self.
         """
+
+        if wandb_log and not wand_available:
+            raise ImportError("wandb is not installed, please install it first or set wandb_log=False")
+
 
         for epoch in range(1, self.hparams.epochs + 1):
             step = 0
