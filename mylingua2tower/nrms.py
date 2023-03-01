@@ -1,5 +1,6 @@
 from recommenders.models.newsrec.models.nrms import NRMSModel as _NRMSModel
 from recommenders.models.newsrec.models.layers import AttLayer2, SelfAttention
+from recommenders.models.newsrec.newsrec_utils import word_tokenize
 
 import tensorflow.keras as keras
 from tensorflow.keras import layers
@@ -279,13 +280,16 @@ class NewsEncoder():
         NOTE: Code Duplication from MINDIterator
         """
         title_size = self.model.input.shape[1]
-        print("title sizeddd ",title_size)
+        
         news_title_index = np.zeros(
             (len(news_titles), title_size), dtype="int32"
         )
 
         for news_index in range(len(news_titles)):
             title = news_titles[news_index]
+            #Tokenize title
+            title = word_tokenize(title)
+            # itterate over every word
             for word_index in range(min(title_size, len(title))):
                 if title[word_index].lower() in self.word2idx:
                     news_title_index[news_index, word_index] = self.word2idx[
@@ -304,6 +308,10 @@ class UserEncoder():
     def __init__(self, model):
         self.model = model
 
+    @property
+    def history_size(self):
+        return self.model.input.shape[1]
+
     def pad_crop_input(self, single_user_encoded_news):
         """
         Parameters
@@ -315,7 +323,7 @@ class UserEncoder():
         np.array
             shape (1, his_size, news_embedding_size)
         """
-        his_size = self.model.input.shape[1]
+        his_size = self.history_size
         news_embedding_size = self.model.input.shape[2]
 
         # cropped and padded news
